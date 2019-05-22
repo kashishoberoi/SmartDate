@@ -1,1 +1,1 @@
-### Contains all extractors for tinder
+### Contain extractors for tinder
