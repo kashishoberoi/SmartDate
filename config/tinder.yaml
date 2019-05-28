@@ -11,5 +11,5 @@ output_folder: ''
 ph_user_agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_2_5 like Mac OS X) AppleWebKit/604.5.6
   (KHTML, like Gecko) Mobile/15D60 AKiOSSDK/4.29.0
 platform: ios
-right_swipes: 5
+right_swipes: 1
 tinder_token: be080cf1-0b27-4662-a34d-40c994987507
