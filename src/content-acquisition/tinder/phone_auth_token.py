@@ -2,8 +2,8 @@ import requests
 import json
 import yaml
 
-
-with open("/SmartDate-master/config/tinder.yaml", 'r') as ymlfile:
+conf_path = os.path.relpath('../../../config/tinder.yaml', os.getcwd())
+with open(conf_path, 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
 CODE_REQUEST_URL = "https://graph.accountkit.com/v1.2/start_login?access_token=AA%7C464891386855067%7Cd1891abb4b0bcdfa0580d9b839f4a522&credentials_type=phone_number&fb_app_events_enabled=1&fields=privacy_policy%2Cterms_of_service&locale=fr_FR&phone_number=#placeholder&response_type=token&sdk=ios"
