@@ -8,11 +8,13 @@ import yaml
 
 date = str(datetime.date.today())
 
-
-with open("/SmartDate-master/config/tinder.yaml", 'r') as ymlfile:
+conf_path = os.path.relpath('../../../config/tinder.yaml', os.getcwd())
+with open(conf_path, 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
 file_name = cfg['city']+"_"+date
+op_file_path = cfg['output_folder']+file_name
+
 
 rcounter = 0
 
@@ -123,7 +125,7 @@ def main():
 # checking if the script is being run for the first time during the day(file exists or not)
 
     for i in range(2):
-        file_exists = os.path.isfile("%s.json" % file_name)
+        file_exists = os.path.isfile("%s.json" % op_file_path)
                 
         if not file_exists:
             #get source profile location
@@ -131,19 +133,20 @@ def main():
             temp_dict['position'] = coordinates
             #first set of recs
             r = get_recommendations()
+            print("got", len(r['results']), "profiles")
             temp_dict['results'] = r['results']
             swipe(temp_dict)
 
-            with open("%s.json" % file_name, 'w+') as fp:
+            with open("%s.json" % op_file_path, 'w+') as fp:
                 json.dump(temp_dict, fp)
             print(len(temp_dict['results']),"profiles done")
 
-            with open("%s.json" % file_name) as fp:
+            with open("%s.json" % op_file_path) as fp:
                     temp_dict = json.load(fp)
 
         else:
             try:
-                with open("%s.json" % file_name) as fp:
+                with open("%s.json" % op_file_path) as fp:
                     temp_dict = json.load(fp)
 
                 while(rcounter<cfg['right_swipes'] and temp_dict['last_swipe_count']+rcounter<=90):
@@ -153,7 +156,7 @@ def main():
                     swipe(rec)
                     temp_dict['results'].extend(rec['results'])
 
-                    with open("%s.json" % file_name, 'w+') as fp:
+                    with open("%s.json" % op_file_path, 'w+') as fp:
                         json.dump(temp_dict, fp)
 
                     print(len(temp_dict['results']),"profiles done")
@@ -161,7 +164,7 @@ def main():
                     time.sleep(random.randint(180,300))
 
             except KeyboardInterrupt:
-                with open("%s.json" % file_name, 'w+') as fp:
+                with open("%s.json" % op_file_path, 'w+') as fp:
                     json.dump(temp_dict, fp)
             break
 
