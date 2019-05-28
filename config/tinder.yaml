@@ -1,1 +1,15 @@
-
+User_agent: Tinder/10.13.0 (iPhone; iOS 12.2.0; Scale/2.00)
+app_version: 10.13.0
+city: Doha
+gender: 0
+gender_filter: 1
+host: https://api.gotinder.com
+max_age: 30
+min_age: 18
+name: Pallavi
+output_folder: ''
+ph_user_agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_2_5 like Mac OS X) AppleWebKit/604.5.6
+  (KHTML, like Gecko) Mobile/15D60 AKiOSSDK/4.29.0
+platform: ios
+right_swipes: 5
+tinder_token: be080cf1-0b27-4662-a34d-40c994987507
