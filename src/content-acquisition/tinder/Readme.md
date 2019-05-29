@@ -1,8 +1,8 @@
 ### Contain extractors for tinder
 ## Steps to get the extractor working :
-1. Run phone_auth_token.py . You'll be asked for your phone number at runtime, once you've entered tbe phone number you'll have to type in the code you received by SMS, and it will return your token. 
+1. Run phone_auth_token.py . You'll be asked for your phone number at runtime, once you've entered the phone number you'll have to type in the code you received by SMS, and it will return your token. 
 2. Place this token in the config file as the value for 'tinder_token'
-3. Fill in the other deltails in the configuration file as follows :
+3. Fill in the other details in the configuration file as follows :
 
 ```
 User_agent: Tinder/10.13.0 (iPhone; iOS 12.2.0; Scale/2.00)  #tinder/<app version> (<phone model>; <os> <os_version>; Scale/2.00)
