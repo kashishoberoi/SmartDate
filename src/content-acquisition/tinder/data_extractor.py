@@ -13,20 +13,17 @@ conf_path = os.path.relpath('../../../config/tinder.yaml', os.getcwd())
 with open(conf_path, 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
-file_name = cfg['city']+"_"+date
-op_file_path = cfg['output_folder']+file_name
+#create loacation,image,date folder
+l = [cfg['city'],"images",date]
+path = cfg['output_folder']
+for i in range(3):
+    path = path+'/'+l[i]
+    if not os.path.exists(path):
+        os.mkdir(path)
 
-
-rcounter = 0
-
-headers = {
-    'app_version': str(cfg['app_version']),
-    'platform': cfg['platform'],
-    "content-type": "application/json",
-    "User-agent": cfg['User_agent'],
-	"X-Auth-Token": cfg['tinder_token'],
-}
-
+main_path = cfg['output_folder']+cfg['city']
+op_file_path = main_path+'/'+date
+image_path = main_path+"/images/"+date
 
 temp_dict = {
     "name" : cfg['name'],
@@ -36,6 +33,15 @@ temp_dict = {
     "last_swipe_count" : 0,
     "results" : []
 
+}
+rcounter = 0
+
+headers = {
+    'app_version': str(cfg['app_version']),
+    'platform': cfg['platform'],
+    "content-type": "application/json",
+    "User-agent": cfg['User_agent'],
+	"X-Auth-Token": cfg['tinder_token'],
 }
 
 def get_self():
@@ -79,7 +85,6 @@ def get_recommendations():
 
 
 def swipe(db):
-    
     global temp_dict
     global rcounter
 
@@ -112,33 +117,27 @@ def swipe(db):
                 print("Something went wrong with swiping left:", e)
 
 def extract_images(data):
+
     for p in data:
         count = 1
         Id = p['_id']
-        path = "../../../output/images/%s"%Id
-        os.mkdir(path);
+        path = image_path+'/'+Id
+        if not os.path.exists(path):
+            os.mkdir(path);
         for j in p['photos']:
             filename = path+'/%d.jpg'%count
             # print(filename)
             url = j['processedFiles'][0]['url']
             urllib.request.urlretrieve(url, filename)
             count+=1
-        
-
-
-
 
 def main():
-
     global temp_dict
     global rcounter
 # set preferences
     preferences = change_preferences(age_filter_min=cfg['min_age'], age_filter_max=cfg['max_age'],  gender_filter = cfg['gender_filter'], gender = cfg['gender'])
 
-
-
 # checking if the script is being run for the first time during the day(file exists or not)
-
     for i in range(2):
         file_exists = os.path.isfile("%s.json" % op_file_path)
                 
@@ -179,8 +178,8 @@ def main():
                         json.dump(temp_dict, fp)    
                                         
                     extract_images(rec['results'])
+                    print("images extracted")
                     swipe(rec)
-
 
                     print(len(temp_dict['results']),"profiles done")
                     print("total right swipe count :", temp_dict['last_swipe_count'])
@@ -192,8 +191,6 @@ def main():
             break
 
     
-
-
-
 if __name__ == '__main__':
+
     main()
