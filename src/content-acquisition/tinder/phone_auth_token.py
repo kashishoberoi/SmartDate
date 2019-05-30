@@ -1,6 +1,8 @@
 import requests
 import json
 import yaml
+import os
+
 
 conf_path = os.path.relpath('../../../config/tinder.yaml', os.getcwd())
 with open(conf_path, 'r') as ymlfile:

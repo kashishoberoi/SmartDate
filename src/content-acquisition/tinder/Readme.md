@@ -1,7 +1,7 @@
 ### Contain extractors for tinder
 ## Steps to get the extractor working :
 1. Run phone_auth_token.py . You'll be asked for your phone number at runtime, once you've entered the phone number you'll have to type in the code you received by SMS, and it will return your token. 
-2. Place this token in the config file as the value for 'tinder_token'
+2. Place this token in the config file as the value for 'tinder_token' (this token is valid for 24 hrs, repeat step 1 and 2 once the token expires)
 3. Fill in the other details in the configuration file as follows :
 
 ```
@@ -22,4 +22,5 @@ right_swipes: 1 #number of right swipes you would like to make
 tinder_token: be080cf1-0b27-4662-a34d-40c994987507 #token received after running phone_auth_token.py
 
 ```
-4. Run data_extractor.py
+4. Create "output" folder in the "Smartdate" directory
+6. Run data_extractor.py
