@@ -23,5 +23,4 @@ tinder_token: be080cf1-0b27-4662-a34d-40c994987507 #token received after running
 
 ```
 4. Create "output" folder in the "Smartdate" directory
-5. Create "images" directory inside the "output" directory
 6. Run data_extractor.py
