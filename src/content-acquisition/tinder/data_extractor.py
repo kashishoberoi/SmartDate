@@ -3,7 +3,8 @@ import random
 import requests
 import datetime
 import time
-import os
+import os, sys
+import urllib.request
 import yaml
 
 date = str(datetime.date.today())
@@ -110,6 +111,20 @@ def swipe(db):
             except requests.exceptions.RequestException as e:
                 print("Something went wrong with swiping left:", e)
 
+def extract_images(data):
+    for p in data:
+        count = 1
+        Id = p['_id']
+        path = "../../../output/images/%s"%Id
+        os.mkdir(path);
+        for j in p['photos']:
+            filename = path+'/%d.jpg'%count
+            # print(filename)
+            url = j['processedFiles'][0]['url']
+            urllib.request.urlretrieve(url, filename)
+            count+=1
+        
+
 
 
 
@@ -135,10 +150,14 @@ def main():
             r = get_recommendations()
             print("got", len(r['results']), "profiles")
             temp_dict['results'] = r['results']
-            swipe(temp_dict)
 
             with open("%s.json" % op_file_path, 'w+') as fp:
                 json.dump(temp_dict, fp)
+
+            extract_images(temp_dict['results'])
+            print("images extracted")
+            swipe(temp_dict)
+
             print(len(temp_dict['results']),"profiles done")
 
             with open("%s.json" % op_file_path) as fp:
@@ -153,11 +172,15 @@ def main():
            
                     rec = get_recommendations()
                     print("got", len(rec['results']), "profiles")
-                    swipe(rec)
+
                     temp_dict['results'].extend(rec['results'])
 
                     with open("%s.json" % op_file_path, 'w+') as fp:
-                        json.dump(temp_dict, fp)
+                        json.dump(temp_dict, fp)    
+                                        
+                    extract_images(rec['results'])
+                    swipe(rec)
+
 
                     print(len(temp_dict['results']),"profiles done")
                     print("total right swipe count :", temp_dict['last_swipe_count'])
