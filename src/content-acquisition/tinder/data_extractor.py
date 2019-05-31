@@ -13,12 +13,9 @@ def set_token():
     if get_self()['meta']['status'] == 401:
         print("TOKEN EXPIRED \n")
         phone_number = cfg['phone_number']
-        log_code = sendCode(phone_number)
+        log_code = str(sendCode(phone_number))
         otp = input("ENTER OTP: ")
         getToken(phone_number, otp, log_code)
-        log_code = sendCode(phone_number)
-        sms_code = input("Please enter the code you've received by sms")
-        print("Here is your Tinder token :" + str(getToken(phone_number, sms_code, log_code)))
 
 def create_directory():
     #create loacation,image,date folder
