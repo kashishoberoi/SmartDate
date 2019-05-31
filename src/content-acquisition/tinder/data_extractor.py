@@ -6,16 +6,6 @@ import time
 import os, sys
 import urllib.request
 import yaml, pgeocode
-from phone_auth_token import sendCode, getToken
-
-
-def set_token():
-    if get_self()['meta']['status'] == 401:
-        print("TOKEN EXPIRED \n")
-        phone_number = cfg['phone_number']
-        log_code = str(sendCode(phone_number))
-        otp = input("ENTER OTP: ")
-        getToken(phone_number, otp, log_code)
 
 def create_directory():
     #create loacation,image,date folder
@@ -180,7 +170,6 @@ if __name__ == '__main__':
         "User-agent": cfg['User_agent'],
         "X-Auth-Token": cfg['tinder_token'],
     }
-    set_token()
     create_directory()
     update_location()
     change_preferences(age_filter_min=cfg['min_age'], age_filter_max=cfg['max_age'],  gender_filter = cfg['gender_filter'], gender = cfg['gender'])
