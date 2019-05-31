@@ -107,8 +107,8 @@ def swipe(profiles):
                 r = requests.get(url, headers=headers)
                 print(user['_id'], "swiped left")
                 time.sleep(random.uniform(0.3,2))
-            except requests.exceptions.RequestException as e:
-                print(e)
+        except requests.exceptions.RequestException as e:
+            print(e)
 
 def extract_images(profiles):
     for profile in profiles:
