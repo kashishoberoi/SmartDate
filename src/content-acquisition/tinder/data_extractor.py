@@ -131,13 +131,13 @@ def get_extractions():
 
     while(rcounter<cfg['right_swipes'] and temp_dict['last_swipe_count']+rcounter<=90):
         try:
+            print("### Image and text extraction started ###")
             rec = get_recommendations()
             print("got", len(rec['results']), "profiles")
             temp_dict['results'] = temp_dict['results'] + rec['results']
             swipe(rec['results'])
-            print("### Image extraction started ###")
             extract_images(rec['results'])
-            time.sleep(random.randint(120,180))
+            time.sleep(random.randint(30,50))
         except KeyboardInterrupt:
             export_results(temp_dict)
 
