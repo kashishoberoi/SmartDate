@@ -6,6 +6,19 @@ import time
 import os, sys
 import urllib.request
 import yaml, pgeocode
+from phone_auth_token import sendCode, getToken
+
+
+def set_token():
+    if get_self()['meta']['status'] == 401:
+        print("TOKEN EXPIRED \n")
+        phone_number = cfg['phone_number']
+        log_code = sendCode(phone_number)
+        otp = input("ENTER OTP: ")
+        getToken(phone_number, otp, log_code)
+        log_code = sendCode(phone_number)
+        sms_code = input("Please enter the code you've received by sms")
+        print("Here is your Tinder token :" + str(getToken(phone_number, sms_code, log_code)))
 
 def create_directory():
     #create loacation,image,date folder
@@ -78,12 +91,12 @@ def swipe(profiles):
 
     rightswipe = set()
     for i in range(random.randint(0,5)): #level 1 of randomness(0-5 swipes)
-        rightswipe.add(random.randint(0,len(db['results'])))  #level 2 of randomness(profile no 0-22)
+        rightswipe.add(random.randint(0,len(profiles)))  #level 2 of randomness(profile no 0-22)
 
     rightswipe = list(rightswipe)
     for index, user in enumerate(profiles):
-        if index in rightswipe and rcounter < cfg['right_swipes']:
-            try:
+        try:
+            if index in rightswipe and rcounter < cfg['right_swipes']:
                 url = cfg['host'] + '/like/%s' % user['_id']
                 r = requests.get(url, headers=headers)
                 rcounter+=1
@@ -93,7 +106,7 @@ def swipe(profiles):
                 url = cfg['host'] + '/pass/%s' % user['_id']
                 r = requests.get(url, headers=headers)
                 print(user['_id'], "swiped left")
-                time.sleep(random.randint(3,5))
+                time.sleep(random.uniform(0.3,2))
             except requests.exceptions.RequestException as e:
                 print(e)
 
@@ -134,18 +147,18 @@ def get_extractions():
             rec = get_recommendations()
             print("got", len(rec['results']), "profiles")
             temp_dict['results'] = temp_dict['results'] + rec['results']
-            extract_images(rec['results'])
             swipe(rec['results'])
-            export_results(temp_dict)
+            print("### Image extraction started ###")
+            extract_images(rec['results'])
             time.sleep(random.randint(120,180))
         except KeyboardInterrupt:
             export_results(temp_dict)
 
+    export_results(temp_dict)
     print(len(temp_dict['results']),"profiles done")
 
 if __name__ == '__main__':
     date = str(datetime.date.today())
-    # conf_path = os.path.relpath('../../../config/tinder.yaml', os.getcwd())
     with open('../../../config/tinder.yaml', 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
     
@@ -170,7 +183,7 @@ if __name__ == '__main__':
         "User-agent": cfg['User_agent'],
         "X-Auth-Token": cfg['tinder_token'],
     }
-
+    set_token()
     create_directory()
     update_location()
     change_preferences(age_filter_min=cfg['min_age'], age_filter_max=cfg['max_age'],  gender_filter = cfg['gender_filter'], gender = cfg['gender'])
