@@ -5,44 +5,16 @@ import datetime
 import time
 import os, sys
 import urllib.request
-import yaml
+import yaml, pgeocode
 
-date = str(datetime.date.today())
-
-conf_path = os.path.relpath('../../../config/tinder.yaml', os.getcwd())
-with open(conf_path, 'r') as ymlfile:
-    cfg = yaml.load(ymlfile)
-
-#create loacation,image,date folder
-l = [cfg['city'],"images",date]
-path = cfg['output_folder']
-for i in range(3):
-    path = path+'/'+l[i]
-    if not os.path.exists(path):
-        os.mkdir(path)
-
-main_path = cfg['output_folder']+cfg['city']
-op_file_path = main_path+'/'+date
-image_path = main_path+"/images/"+date
-
-temp_dict = {
-    "name" : cfg['name'],
-    "city" : cfg['city'],
-    "position" : {},
-    "date" : date,
-    "last_swipe_count" : 0,
-    "results" : []
-
-}
-rcounter = 0
-
-headers = {
-    'app_version': str(cfg['app_version']),
-    'platform': cfg['platform'],
-    "content-type": "application/json",
-    "User-agent": cfg['User_agent'],
-	"X-Auth-Token": cfg['tinder_token'],
-}
+def create_directory():
+    #create loacation,image,date folder
+    l = [cfg['city'],"images",date]
+    path = cfg['output_folder']
+    for i in range(3):
+        path = path+'/'+l[i]
+        if not os.path.exists(path):
+            os.mkdir(path)
 
 def get_self():
     url = cfg['host'] + '/profile'
@@ -50,7 +22,7 @@ def get_self():
         r = requests.get(url, headers=headers)
         return r.json()
     except requests.exceptions.RequestException as e:
-        print("Something went wrong. Could not get your data:", e)
+        print(e)
 
 def change_preferences(**kwargs):
     '''
@@ -67,10 +39,26 @@ def change_preferences(**kwargs):
     try:
         url = cfg['host'] + '/profile'
         r = requests.post(url, headers=headers, data=json.dumps(kwargs))
-        return r.json()
     except requests.exceptions.RequestException as e:
-        print("Something went wrong. Could not change your preferences:", e)
+        print(e)
 
+def get_geolocation(cn, pincode):
+    nomi = pgeocode.Nominatim(cn)
+    res = dict(nomi.query_postal_code(pincode))
+    lat = res['latitude']
+    lon = res['longitude']
+    return lat, lon
+
+def update_location():
+    '''
+    Updates your location to the given latitude and longitude - cannot call the API multiple times at one go. Give a 20-25 mins gap between calls.
+    '''
+    lat, lon = get_geolocation(cfg['country_name'], cfg['pincode'])
+    try:
+        url = cfg['host'] + '/user/ping'
+        r = requests.post(url, headers=headers, data=json.dumps({"lat": lat, "lon": lon}))
+    except requests.exceptions.RequestException as e:
+        print(e)
 
 def get_recommendations():
     '''
@@ -84,113 +72,106 @@ def get_recommendations():
         print("Something went wrong with getting recomendations:", e)
 
 
-def swipe(db):
+def swipe(profiles):
     global temp_dict
     global rcounter
 
-    rightswipe = []
+    rightswipe = set()
     for i in range(random.randint(0,5)): #level 1 of randomness(0-5 swipes)
-        rightswipe.append(random.randint(0,len(db['results'])))  #level 2 of randomness(profile no 0-22)
+        rightswipe.add(random.randint(0,len(db['results'])))  #level 2 of randomness(profile no 0-22)
 
-    for i in range(0,len(db['results'])):
-        id = db["results"][i]['_id']
-        url = cfg['host'] + '/like/%s' % id
-
-        if i in rightswipe and rcounter<cfg['right_swipes']:
+    rightswipe = list(rightswipe)
+    for index, user in enumerate(profiles):
+        if index in rightswipe and rcounter < cfg['right_swipes']:
             try:
+                url = cfg['host'] + '/like/%s' % user['_id']
                 r = requests.get(url, headers=headers)
                 rcounter+=1
                 temp_dict['last_swipe_count'] +=1
-                print(id, "swiped right")
-                
-
-                time.sleep(random.randint(3,5))
-            except requests.exceptions.RequestException as e:
-                print("Something went wrong with swiping right:", e)
-
-        else:
-            try:
+                print(user['_id'], "swiped right")
+            else:
+                url = cfg['host'] + '/pass/%s' % user['_id']
                 r = requests.get(url, headers=headers)
-                print(id, "swiped left")
+                print(user['_id'], "swiped left")
                 time.sleep(random.randint(3,5))
             except requests.exceptions.RequestException as e:
-                print("Something went wrong with swiping left:", e)
+                print(e)
 
-def extract_images(data):
-
-    for p in data:
+def extract_images(profiles):
+    for profile in profiles:
         count = 1
-        Id = p['_id']
-        path = image_path+'/'+Id
+        _id = profile['_id']
+        path = image_path+'/'+_id
         if not os.path.exists(path):
             os.mkdir(path);
-        for j in p['photos']:
+        for photo in profile['photos']:
             filename = path+'/%d.jpg'%count
-            # print(filename)
-            url = j['processedFiles'][0]['url']
+            url = photo['processedFiles'][0]['url']
             urllib.request.urlretrieve(url, filename)
             count+=1
 
-def main():
+def export_results(dump):
+    with open("%s.json" % op_file_path, 'w+') as fp:
+        json.dump(dump, fp) 
+
+def get_extractions():
     global temp_dict
     global rcounter
-# set preferences
-    preferences = change_preferences(age_filter_min=cfg['min_age'], age_filter_max=cfg['max_age'],  gender_filter = cfg['gender_filter'], gender = cfg['gender'])
+    # set preferences
+    # checking if the script is being run for the first time during the day(file exists or not)
+    file_exists = os.path.isfile("%s.json" % op_file_path)
+    if not file_exists:
+        #get source profile location
+        coordinates = get_self()['pos_info']
+        temp_dict['position'] = coordinates
 
-# checking if the script is being run for the first time during the day(file exists or not)
-    for i in range(2):
-        file_exists = os.path.isfile("%s.json" % op_file_path)
-                
-        if not file_exists:
-            #get source profile location
-            coordinates = get_self()['pos_info']
-            temp_dict['position'] = coordinates
-            #first set of recs
-            r = get_recommendations()
-            print("got", len(r['results']), "profiles")
-            temp_dict['results'] = r['results']
+    else:
+        with open("%s.json" % op_file_path) as fp:
+            temp_dict = json.load(fp)
 
-            with open("%s.json" % op_file_path, 'w+') as fp:
-                json.dump(temp_dict, fp)
+    while(rcounter<cfg['right_swipes'] and temp_dict['last_swipe_count']+rcounter<=90):
+        try:
+            rec = get_recommendations()
+            print("got", len(rec['results']), "profiles")
+            temp_dict['results'] = temp_dict['results'] + rec['results']
+            extract_images(rec['results'])
+            swipe(rec['results'])
+            export_results(temp_dict)
+            time.sleep(random.randint(120,180))
+        except KeyboardInterrupt:
+            export_results(temp_dict)
 
-            extract_images(temp_dict['results'])
-            print("images extracted")
-            swipe(temp_dict)
+    print(len(temp_dict['results']),"profiles done")
 
-            print(len(temp_dict['results']),"profiles done")
-
-            with open("%s.json" % op_file_path) as fp:
-                    temp_dict = json.load(fp)
-
-        else:
-            try:
-                with open("%s.json" % op_file_path) as fp:
-                    temp_dict = json.load(fp)
-
-                while(rcounter<cfg['right_swipes'] and temp_dict['last_swipe_count']+rcounter<=90):
-           
-                    rec = get_recommendations()
-                    print("got", len(rec['results']), "profiles")
-
-                    temp_dict['results'].extend(rec['results'])
-
-                    with open("%s.json" % op_file_path, 'w+') as fp:
-                        json.dump(temp_dict, fp)    
-                                        
-                    extract_images(rec['results'])
-                    print("images extracted")
-                    swipe(rec)
-
-                    print(len(temp_dict['results']),"profiles done")
-                    print("total right swipe count :", temp_dict['last_swipe_count'])
-                    time.sleep(random.randint(180,300))
-
-            except KeyboardInterrupt:
-                with open("%s.json" % op_file_path, 'w+') as fp:
-                    json.dump(temp_dict, fp)
-            break
-
-    
 if __name__ == '__main__':
+    date = str(datetime.date.today())
+    # conf_path = os.path.relpath('../../../config/tinder.yaml', os.getcwd())
+    with open('../../../config/tinder.yaml', 'r') as ymlfile:
+        cfg = yaml.load(ymlfile)
+    
+    main_path = cfg['output_folder']+cfg['city']
+    op_file_path = main_path+'/'+date
+    image_path = main_path+"/images/"+date
 
-    main()
+    temp_dict = {
+        "name" : cfg['name'],
+        "city" : cfg['city'],
+        "position" : {},
+        "date" : date,
+        "last_swipe_count" : 0,
+        "results" : []
+
+    }
+    rcounter = 0
+    headers = {
+        'app_version': str(cfg['app_version']),
+        'platform': cfg['platform'],
+        "content-type": "application/json",
+        "User-agent": cfg['User_agent'],
+        "X-Auth-Token": cfg['tinder_token'],
+    }
+
+    create_directory()
+    update_location()
+    change_preferences(age_filter_min=cfg['min_age'], age_filter_max=cfg['max_age'],  gender_filter = cfg['gender_filter'], gender = cfg['gender'])
+    get_extractions()
