@@ -98,21 +98,45 @@ def swipe(profiles):
             print(e)
 
 def extract_images(profiles):
+    if cfg['gender_filter']==1:
+        gender = "_female"
+    else:
+        gender = "_male"
     for profile in profiles:
         count = 1
         _id = profile['_id']
-        path = image_path+'/'+_id
+        path = image_path+'/'+_id+gender
         if not os.path.exists(path):
             os.mkdir(path);
         for photo in profile['photos']:
             filename = path+'/%d.jpg'%count
             url = photo['processedFiles'][0]['url']
-            urllib.request.urlretrieve(url, filename)
+            try:
+                urllib.request.urlretrieve(url, filename)
+            except:
+                pass
             count+=1
 
-def export_results(dump):
-    with open("%s.json" % op_file_path, 'w+') as fp:
-        json.dump(dump, fp) 
+def export_results(dump,path):
+    with open(path, 'w+') as fp:
+        json.dump(dump, fp)
+
+def import_results(path):
+    with open(path) as fp:
+        temp_dict = json.load(fp)
+
+def retrieve_lostdata(path):
+    file = cfg['output_folder']+path.split('/')[4]+'/'+path.split('/')[-1]+'.json'
+    import_results(file)
+    temp_dict['results']=[]
+    for i in os.listdir(path):
+        url = cfg['host'] + '/user/%s' % i
+        rec = requests.get(url, headers=headers)
+        try:
+            temp_dict['results'].append(rec.json()['results'])
+        except:
+            pass
+    export_results(temp_dict,file)
 
 def get_extractions():
     global temp_dict
@@ -124,10 +148,10 @@ def get_extractions():
         #get source profile location
         coordinates = get_self()['pos_info']
         temp_dict['position'] = coordinates
+        export_results(temp_dict,"%s.json" % op_file_path)
 
     else:
-        with open("%s.json" % op_file_path) as fp:
-            temp_dict = json.load(fp)
+        import_results("%s.json" % op_file_path)
 
     while(rcounter<cfg['right_swipes'] and temp_dict['last_swipe_count']+rcounter<=90):
         try:
@@ -135,20 +159,21 @@ def get_extractions():
             rec = get_recommendations()
             print("got", len(rec['results']), "profiles")
             temp_dict['results'] = temp_dict['results'] + rec['results']
+            export_results(temp_dict,"%s.json" % op_file_path)
             swipe(rec['results'])
             extract_images(rec['results'])
             time.sleep(random.randint(30,50))
         except KeyboardInterrupt:
             export_results(temp_dict)
 
-    export_results(temp_dict)
+    export_results(temp_dict,"%s.json" % op_file_path)
     print(len(temp_dict['results']),"profiles done")
 
 if __name__ == '__main__':
     date = str(datetime.date.today())
     with open('../../../config/tinder.yaml', 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
-    
+
     main_path = cfg['output_folder']+cfg['city']
     op_file_path = main_path+'/'+date
     image_path = main_path+"/images/"+date
@@ -170,6 +195,8 @@ if __name__ == '__main__':
         "User-agent": cfg['User_agent'],
         "X-Auth-Token": cfg['tinder_token'],
     }
+    if cfg['backfill']:
+        retrieve_lostdata(cfg['backfill_folder'])
     create_directory()
     update_location()
     change_preferences(age_filter_min=cfg['min_age'], age_filter_max=cfg['max_age'],  gender_filter = cfg['gender_filter'], gender = cfg['gender'])
