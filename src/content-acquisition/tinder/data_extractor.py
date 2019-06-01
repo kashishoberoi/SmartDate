@@ -93,7 +93,6 @@ def swipe(profiles):
                 url = cfg['host'] + '/pass/%s' % user['_id']
                 r = requests.get(url, headers=headers)
                 print(user['_id'], "swiped left")
-                time.sleep(random.uniform(0.3,2))
         except requests.exceptions.RequestException as e:
             print(e)
 
@@ -126,17 +125,21 @@ def import_results(path):
         temp_dict = json.load(fp)
 
 def retrieve_lostdata(path):
+    print("## BACKFILL INITIATED ##")
     file = cfg['output_folder']+path.split('/')[4]+'/'+path.split('/')[-1]+'.json'
     import_results(file)
     temp_dict['results']=[]
-    for i in os.listdir(path):
-        url = cfg['host'] + '/user/%s' % i
+    for folder in os.listdir(path):
+        _id = folder.split('_')[0]
+        print("BACKFILL ID: ", _id)
+        url = cfg['host'] + '/user/%s' % _id
         rec = requests.get(url, headers=headers)
         try:
             temp_dict['results'].append(rec.json()['results'])
         except:
             pass
     export_results(temp_dict,file)
+    print("## BACKFILL COMPLETE ##")
 
 def get_extractions():
     global temp_dict
@@ -162,7 +165,6 @@ def get_extractions():
             export_results(temp_dict,"%s.json" % op_file_path)
             swipe(rec['results'])
             extract_images(rec['results'])
-            time.sleep(random.randint(30,50))
         except KeyboardInterrupt:
             export_results(temp_dict)
 

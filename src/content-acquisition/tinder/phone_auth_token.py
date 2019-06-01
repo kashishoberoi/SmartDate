@@ -30,6 +30,7 @@ def getToken(number, code, req_code):
     VALIDATE_URL = VALIDATE_URL.replace("#request_code", req_code)
     r_validate = requests.post(VALIDATE_URL, headers=HEADERS, verify=False)
     validate_response = r_validate.json()
+    # print(validate_response)
     access_token = validate_response["access_token"]
     access_id = validate_response["id"]
     GetToken_content = json.dumps({'token':access_token, 'id':access_id, "client_version":"9.0.1"})
@@ -44,4 +45,4 @@ def getToken(number, code, req_code):
 phone_number = input("Please enter your phone number under the international format (country code + number): ")
 log_code = sendCode(phone_number)
 sms_code = input("Please enter the code you've received by sms: ")
-print("Your tinder token to add in config.yaml:\n" + str(getToken(phone_number, sms_code, log_code)))
+print(str(getToken(phone_number, sms_code, log_code)))
