@@ -1,26 +1,36 @@
 ### Contain extractors for tinder
 ## Steps to get the extractor working :
-1. Run phone_auth_token.py . You'll be asked for your phone number at runtime, once you've entered the phone number you'll have to type in the code you received by SMS, and it will return your token. 
+
+<b>Requirements:</b> `pip install pgeocode`
+> pgeocode helps in finding latitude, longitude from the given country code and pin code. We need to provide both the details in the `tinder.yaml` file to update our location.
+
+### ACCESS-TOKEN GENERATION
+To initiate the extractions, we need to get access-token which is active for 24 hrs. After it, we need to get a fesh access-token. To get access token run: `python3 phone_auth_token` . 
+1. Provide phone number example, +919876543210, which would trigger an OTP on that number. After providing the correct OTP, an access-token will be returned which is valid for 24hrs.
 2. Place this token in the config file as the value for 'tinder_token' (this token is valid for 24 hrs, repeat step 1 and 2 once the token expires)
-3. Fill in the other details in the configuration file as follows :
 
+### SETTING UP TINDER CONFIG
+Fill in the other details in the configuration file as follows :
 ```
-User_agent: Tinder/10.13.0 (iPhone; iOS 12.2.0; Scale/2.00)  #tinder/<app version> (<phone model>; <os> <os_version>; Scale/2.00)
-app_version: 10.13.0  #enter your tinder app version
-city: Doha  #City at which you're extracting data
-gender: 0 #your gende
-gender_filter: 1  #gender you're seeking for
+User_agent: Tinder/10.13.0 (iPhone; iOS 12.2.0; Scale/2.00)
+app_version: 10.13.0
+gender: 0
+gender_filter: 1
 host: https://api.gotinder.com
-max_age: 30 #max age preference
-min_age: 18 #min age preference
-name: Pallavi #your name
-output_folder: '../../../output/' #path to the output folder where the data will be stored
+max_age: 25
+min_age: 18
+name: <your-name>
+output_folder: '../../../output/'
 ph_user_agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_2_5 like Mac OS X) AppleWebKit/604.5.6
-  (KHTML, like Gecko) Mobile/15D60 AKiOSSDK/4.29.0 #do not edit this field
-platform: ios #your mobile os
-right_swipes: 1 #number of right swipes you would like to make
-tinder_token: be080cf1-0b27-4662-a34d-40c994987507 #token received after running phone_auth_token.py
-
+  (KHTML, like Gecko) Mobile/15D60 AKiOSSDK/4.29.0
+platform: ios
+right_swipes: <total-right-swipe-to-do>
+tinder_token: <your-access-token>
+country_name: <country-code>
+city: <city-name>
+pincode: <area pin code>
+backfill: False
+backfill_folder: '../../../output/<city-name>/images/<dd-mm-yyyy>'
 ```
 4. Create "output" folder in the "Smartdate" directory
 6. Run data_extractor.py
