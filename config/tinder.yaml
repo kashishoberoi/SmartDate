@@ -12,7 +12,8 @@ ph_user_agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_2_5 like Mac OS X) AppleWeb
   (KHTML, like Gecko) Mobile/15D60 AKiOSSDK/4.29.0
 platform: ios
 right_swipes: 1
-tinder_token: 9fb77e06-a170-45c6-a561-0be191bb58af
+tinder_token: f3fa027f-f084-4891-b82e-889ec93cf436
 pincode: 02138
 country_name: US
-phone_number: +918971130694
+backfill: False
+backfill_folder: '../../../output/Boston/images/2019-06-01'
