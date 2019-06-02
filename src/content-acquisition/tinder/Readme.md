@@ -30,7 +30,7 @@ country_name: <country-code>
 city: <city-name>
 pincode: <area pin code>
 backfill: False
-backfill_folder: '../../../output/<city-name>/images/<dd-mm-yyyy>'
+backfill_folder: '../../../output/<city-name>/images/<yyyy-mm-dd>'
 ```
 * In gender- male:0, female:1. `gender_filter` means which gender extraction needs to be done
 * max_age and min_age are age filters
@@ -40,7 +40,7 @@ backfill_folder: '../../../output/<city-name>/images/<dd-mm-yyyy>'
 * tinder_token - unique token recieved from `phone_auth_token.py`
 * pincode - area in the city where the extractions need to be done
 * backfill - if there is an error in extracting text data for 'some' city on 'some' date. Then by setting backfill: True, a run triggers extracting the missing profiles. Default set- False
-* backfill_folder - directory path of the image folder where images are extracted but not the bios. For example: if for a date `30-06-2019`, profiles bios were not extracted for city `Sydney` then we would set `backfill_folder: ../../../output/Sydney/images/30-06-2019`
+* backfill_folder - directory path of the image folder where images are extracted but not the bios. For example: if for a date `2019-06-30`, profiles bios were not extracted for city `Sydney` then we would set `backfill_folder: ../../../output/Sydney/images/2019-06-30`
 * country codes to use:
 > Andorra (AD), Argentina (AR), American Samoa (AS), Austria (AT), Australia (AU), Åland Islands (AX), Bangladesh (BD), Belgium (BE), Bulgaria (BG), Bermuda (BM), Brazil (BR), Belarus (BY), Canada (CA), Switzerland (CH), Colombia (CO), Costa Rica (CR), Czechia (CZ), Germany (DE), Denmark (DK), Dominican Republic (DO), Algeria (DZ), Spain (ES), Finland (FI), Faroe Islands (FO), France (FR), United Kingdom of Great Britain and Northern Ireland (GB), French Guiana (GF), Guernsey (GG), Greenland (GL), Guadeloupe (GP), Guatemala (GT), Guam (GU), Croatia (HR), Hungary (HU), Ireland (IE), Isle of Man (IM), India (IN), Iceland (IS), Italy (IT), Jersey (JE), Japan (JP), Liechtenstein (LI), Sri Lanka (LK), Lithuania (LT), Luxembourg (LU), Latvia (LV), Monaco (MC), Republic of Moldova (MD), Marshall Islands (MH), The former Yugoslav Republic of Macedonia (MK), Northern Mariana Islands (MP), Martinique (MQ), Malta (MT), Mexico (MX), Malaysia (MY), New Caledonia (NC), Netherlands (NL), Norway (NO), New Zealand (NZ), Philippines (PH), Pakistan (PK), Poland (PL), Saint Pierre and Miquelon (PM), Puerto Rico (PR), Portugal (PT), Réunion (RE), Romania (RO), Russian Federation (RU), Sweden (SE), Slovenia (SI), Svalbard and Jan Mayen Islands (SJ), Slovakia (SK), San Marino (SM), Thailand (TH), Turkey (TR), Ukraine (UA), United States of America (US), Uruguay (UY), Holy See (VA), United States Virgin Islands (VI), Wallis and Futuna Islands (WF), Mayotte (YT), South Africa (ZA)
 
