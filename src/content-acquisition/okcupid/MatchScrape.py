@@ -8,8 +8,8 @@ import json
 url="https://www.okcupid.com/login"
 
 
-username = 'aj.goldfish@gmail.com'
-password = 'rInwu9-giqvaw-viqnin'
+username = 'kashishokcupid@gmail.com'
+password = 'Champulal15'
 
 driver = webdriver.Chrome("chromedriver")
 
@@ -34,13 +34,19 @@ time.sleep(2)
 print("Matches please!")
 url = "https://www.okcupid.com/match" 
 driver.get(url)
-
+reloads=100
+pause=5
+for i in range(reloads):
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    print(i)
+    time.sleep(pause)
 page = driver.page_source
 html_soup = BeautifulSoup(page, 'html.parser')
 
 print("Getting all matches...!")
 matches = html_soup.find_all('a',class_ = 'match-results-card')
 traverse_url = "https://www.okcupid.com"
+print(len(matches))
 
 for i in range(0,len(matches)):
     #empty json intialization
