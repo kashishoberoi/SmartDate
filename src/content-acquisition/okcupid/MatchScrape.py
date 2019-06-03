@@ -8,8 +8,8 @@ import json
 url="https://www.okcupid.com/login"
 
 
-username = 'kashishokcupid@gmail.com'
-password = 'Champulal15'
+username = 'aj.goldfish@gmail.com'
+password = 'rInwu9-giqvaw-viqnin'
 
 driver = webdriver.Chrome("chromedriver")
 
@@ -82,6 +82,17 @@ for i in range(0,len(matches)):
     #appending to json in required format
     for j in range(0,len(category)):
         data_dict[category[j]] = {question[j]:answer[j]}
+    
+    #Side bar 
+    items = soup.find_all('div',class_ = "matchprofile-details-text")
+    print(items)
+    data_dict['info'] = items[0].text
+    data_dict['perferences'] = items[len(items)-1].text
+
+    if(len(items)==4):
+        data_dict['background'] = items[1].text+','+items[2].text
+    elif(len(items)==3):
+        data_dict['background'] = items[1].text
     
     #Back tracking to matches
     driver.get(url)
