@@ -72,10 +72,8 @@ def get_recommendations():
         print("Something went wrong with getting recomendations:", e)
 
 
-def swipe(profiles):
-    global temp_dict
-    global rcounter
-
+def swipe(profiles, rcounter):
+    last_swipe_count = 0
     rightswipe = set()
     for i in range(random.randint(0,5)): #level 1 of randomness(0-5 swipes)
         rightswipe.add(random.randint(0,len(profiles)))  #level 2 of randomness(profile no 0-22)
@@ -87,7 +85,7 @@ def swipe(profiles):
                 url = cfg['host'] + '/like/%s' % user['_id']
                 r = requests.get(url, headers=headers)
                 rcounter+=1
-                temp_dict['last_swipe_count'] +=1
+                last_swipe_count +=1
                 print(user['_id'], "swiped right")
             else:
                 url = cfg['host'] + '/pass/%s' % user['_id']
@@ -95,6 +93,7 @@ def swipe(profiles):
                 print(user['_id'], "swiped left")
         except requests.exceptions.RequestException as e:
             print(e)
+    return last_swipe_count, rcounter
 
 def extract_images(profiles):
     if cfg['gender_filter']==1:
@@ -122,40 +121,56 @@ def export_results(dump,path):
 
 def import_results(path):
     with open(path) as fp:
-        temp_dict = json.load(fp)
+        return json.load(fp)
 
 def retrieve_lostdata(path):
     print("## BACKFILL INITIATED ##")
+    
     file = cfg['output_folder']+path.split('/')[4]+'/'+path.split('/')[-1]+'.json'
-    import_results(file)
-    temp_dict['results']=[]
-    for folder in os.listdir(path):
+    temp_dict = import_results(file)
+    _ids = list(map(lambda d: d['_id'], temp_dict['results']))
+    for num, folder in enumerate(os.listdir(path)):
         _id = folder.split('_')[0]
-        print("BACKFILL ID: ", _id)
+        if _id in _ids:
+            print("ID already present", _id)
+            continue
+
+        print(num, "BACKFILL ID: ", _id)
         url = cfg['host'] + '/user/%s' % _id
         rec = requests.get(url, headers=headers)
+        if rec.status_code == 401:
+            print("TOKEN EXPIRED")
         try:
-            temp_dict['results'].append(rec.json()['results'])
-        except:
-            pass
+            if rec.status_code == 200:
+                temp_dict['results'].append(rec.json()['results'])
+        except KeyboardInterrupt:
+            export_results(temp_dict,file) 
+
     export_results(temp_dict,file)
     print("## BACKFILL COMPLETE ##")
 
 def get_extractions():
-    global temp_dict
-    global rcounter
     # set preferences
     # checking if the script is being run for the first time during the day(file exists or not)
+    rcounter = 0
     file_exists = os.path.isfile("%s.json" % op_file_path)
     if not file_exists:
         #get source profile location
+        temp_dict = {
+        "name" : cfg['name'],
+        "city" : cfg['city'],
+        "position" : {},
+        "date" : date,
+        "last_swipe_count" : 0,
+        "results" : []
+
+        }
         coordinates = get_self()['pos_info']
         temp_dict['position'] = coordinates
         export_results(temp_dict,"%s.json" % op_file_path)
 
     else:
-        import_results("%s.json" % op_file_path)
-
+        temp_dict = import_results("%s.json" % op_file_path)
     while(rcounter<cfg['right_swipes'] and temp_dict['last_swipe_count']+rcounter<=90):
         try:
             print("### Image and text extraction started ###")
@@ -163,7 +178,8 @@ def get_extractions():
             print("got", len(rec['results']), "profiles")
             temp_dict['results'] = temp_dict['results'] + rec['results']
             export_results(temp_dict,"%s.json" % op_file_path)
-            swipe(rec['results'])
+            last_swipe_count, rcounter = swipe(rec['results'], rcounter)
+            temp_dict['last_swipe_count']+=last_swipe_count
             extract_images(rec['results'])
         except KeyboardInterrupt:
             export_results(temp_dict)
@@ -179,17 +195,6 @@ if __name__ == '__main__':
     main_path = cfg['output_folder']+cfg['city']
     op_file_path = main_path+'/'+date
     image_path = main_path+"/images/"+date
-
-    temp_dict = {
-        "name" : cfg['name'],
-        "city" : cfg['city'],
-        "position" : {},
-        "date" : date,
-        "last_swipe_count" : 0,
-        "results" : []
-
-    }
-    rcounter = 0
     headers = {
         'app_version': str(cfg['app_version']),
         'platform': cfg['platform'],
@@ -199,7 +204,8 @@ if __name__ == '__main__':
     }
     if cfg['backfill']:
         retrieve_lostdata(cfg['backfill_folder'])
-    create_directory()
-    update_location()
-    change_preferences(age_filter_min=cfg['min_age'], age_filter_max=cfg['max_age'],  gender_filter = cfg['gender_filter'], gender = cfg['gender'])
-    get_extractions()
+    else:
+        create_directory()
+        update_location()
+        change_preferences(age_filter_min=cfg['min_age'], age_filter_max=cfg['max_age'],  gender_filter = cfg['gender_filter'], gender = cfg['gender'])
+        get_extractions()
