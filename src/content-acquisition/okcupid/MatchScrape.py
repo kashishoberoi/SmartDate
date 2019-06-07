@@ -4,15 +4,11 @@ from selenium.webdriver.common.by import By
 from requests import get
 from bs4 import BeautifulSoup
 import json
+import yaml
 
 url="https://www.okcupid.com/login"
 
-
-username = 'aj.goldfish@gmail.com'
-password = 'rInwu9-giqvaw-viqnin'
-
 driver = webdriver.Chrome("chromedriver")
-
 
 print("Logging in!")
 driver.get(url)
@@ -34,11 +30,9 @@ time.sleep(2)
 print("Matches please!")
 url = "https://www.okcupid.com/match" 
 driver.get(url)
-reloads=100
-pause=5
+
 for i in range(reloads):
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    print(i)
     time.sleep(pause)
 page = driver.page_source
 html_soup = BeautifulSoup(page, 'html.parser')

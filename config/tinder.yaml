@@ -1,18 +1,18 @@
-User_agent: Tinder/10.13.0 (iPhone; iOS 12.2.0; Scale/2.00)
+User_agent: Tinder/10.13.0 (BND-AL10; Android 8.0.0; Scale/2.00)
 app_version: 10.13.0
-city: Boston
+city: Delhi
 gender: 0
 gender_filter: 1
 host: https://api.gotinder.com
 max_age: 25
 min_age: 18
-name: Pallavi
+name: Kashish
 output_folder: '../../../output/'
 ph_user_agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_2_5 like Mac OS X) AppleWebKit/604.5.6
   (KHTML, like Gecko) Mobile/15D60 AKiOSSDK/4.29.0
-platform: ios
-right_swipes: 1
-tinder_token: 9fb77e06-a170-45c6-a561-0be191bb58af
-pincode: 02138
-country_name: US
-phone_number: +918971130694
+platform: Android
+right_swipes: 5
+tinder_token: a7b3bf79-c4df-43c6-8364-6cba5151d349
+pincode: 110018
+country_name: IN
+phone_number: +918745900626
