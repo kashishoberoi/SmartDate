@@ -6,18 +6,20 @@ from bs4 import BeautifulSoup
 import json
 import os
 from datetime import date
+import yaml
+
+with open('../../../config/okcupid.yaml', 'r') as ymlfile:
+    cfg = yaml.load(ymlfile)
 
 today = date.today().strftime("%d-%m-%Y")
-if not os.path.exists("./"+today):
-    os.makedirs("./"+today)
+path = cfg['output_folder']+today
+if not os.path.exists(path):
+    os.makedirs(path)
 
-path = "./"+today
+url=cfg['host']
 
-url="https://www.okcupid.com/login"
-
-
-username = 'aj.goldfish@gmail.com'
-password = 'rInwu9-giqvaw-viqnin'
+username = cfg['username']
+password = cfg['password']
 
 driver = webdriver.Chrome("chromedriver")
 
@@ -42,12 +44,12 @@ time.sleep(2)
 print("Matches please!")
 url = "https://www.okcupid.com/match" 
 driver.get(url)
-reloads=100
-pause=5
-for i in range(reloads):
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    print(i)
-    time.sleep(pause)
+# reloads=100
+# pause=5
+# for i in range(reloads):
+#     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+#     print(i)
+#     time.sleep(pause)
 page = driver.page_source
 html_soup = BeautifulSoup(page, 'html.parser')
 
@@ -58,7 +60,7 @@ print(len(matches))
 
 for i in range(0,len(matches)):
     #empty json intialization
-    data_dict = {}
+    data_dict = {'collector':cfg['name'],'city':cfg['city'],'pincode':cfg['pincode'],'country':cfg['country_name']}
 
     #jumping to profile and retrieving source
     next_profile_url = traverse_url + matches[i]['href']
@@ -105,5 +107,7 @@ for i in range(0,len(matches)):
     #Back tracking to matches
     driver.get(url)
     print("Exited profile",i)
-    with open(path+data_dict['name'].strip()+str(i)+'.json','w') as fp:
+    with open(path+'/'+data_dict['name'].strip()+str(i)+'.json','w') as fp:
         json.dump(data_dict, fp)
+
+driver.quit()
