@@ -4,6 +4,14 @@ from selenium.webdriver.common.by import By
 from requests import get
 from bs4 import BeautifulSoup
 import json
+import os
+from datetime import date
+
+today = date.today().strftime("%d-%m-%Y")
+if not os.path.exists("./"+today):
+    os.makedirs("./"+today)
+
+path = "./"+today
 
 url="https://www.okcupid.com/login"
 
@@ -97,5 +105,5 @@ for i in range(0,len(matches)):
     #Back tracking to matches
     driver.get(url)
     print("Exited profile",i)
-    with open('./tmp/'+data_dict['name'].strip()+str(i)+'.json','w') as fp:
+    with open(path+data_dict['name'].strip()+str(i)+'.json','w') as fp:
         json.dump(data_dict, fp)
