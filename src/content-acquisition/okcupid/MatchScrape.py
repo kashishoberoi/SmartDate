@@ -49,7 +49,6 @@ def scrolling(reloads, pause, driver):
 def retreive_source(count,driver,matches,traverse_url):    
     next_profile_url = traverse_url + matches[count]['href']
     driver.get(next_profile_url)
-    #print("Entered profile", count)
     src = driver.page_source
     soup = BeautifulSoup(src, 'html.parser')
     return src,soup
