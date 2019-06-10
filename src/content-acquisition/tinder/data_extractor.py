@@ -75,7 +75,7 @@ def get_recommendations():
 def swipe(profiles, rcounter):
     last_swipe_count = 0
     rightswipe = set()
-    for i in range(random.randint(0,5)): #level 1 of randomness(0-5 swipes)
+    for i in range(random.randint(0,3)): #level 1 of randomness(0-5 swipes)
         rightswipe.add(random.randint(0,len(profiles)))  #level 2 of randomness(profile no 0-22)
 
     rightswipe = list(rightswipe)
@@ -123,15 +123,29 @@ def import_results(path):
     with open(path) as fp:
         return json.load(fp)
 
-def retrieve_lostdata(path):
+def retrieve_lostdata(path, flag):
     print("## BACKFILL INITIATED ##")
     
     file = cfg['output_folder']+path.split('/')[4]+'/'+path.split('/')[-1]+'.json'
-    temp_dict = import_results(file)
+    try:
+        temp_dict = import_results(file)
+    except json.decoder.JSONDecodeError:
+        temp_dict = {
+        "name" : cfg['name'],
+        "city" : cfg['city'],
+        "position" : {},
+        "date" : date,
+        "last_swipe_count" : 0,
+        "results" : []
+        }
+    
+    if flag is True:
+            temp_dict['results'] = []
+    
     _ids = list(map(lambda d: d['_id'], temp_dict['results']))
     for num, folder in enumerate(os.listdir(path)):
         _id = folder.split('_')[0]
-        if _id in _ids:
+        if flag is False and _id in _ids:
             print("ID already present", _id)
             continue
 
@@ -145,6 +159,7 @@ def retrieve_lostdata(path):
                 temp_dict['results'].append(rec.json()['results'])
         except KeyboardInterrupt:
             export_results(temp_dict,file) 
+            break
 
     export_results(temp_dict,file)
     print("## BACKFILL COMPLETE ##")
@@ -167,7 +182,7 @@ def get_extractions():
         }
         coordinates = get_self()['pos_info']
         temp_dict['position'] = coordinates
-        export_results(temp_dict,"%s.json" % op_file_path)
+        # export_results(temp_dict,"%s.json" % op_file_path)
 
     else:
         temp_dict = import_results("%s.json" % op_file_path)
@@ -182,7 +197,7 @@ def get_extractions():
             temp_dict['last_swipe_count']+=last_swipe_count
             extract_images(rec['results'])
         except KeyboardInterrupt:
-            export_results(temp_dict)
+            break
 
     export_results(temp_dict,"%s.json" % op_file_path)
     print(len(temp_dict['results']),"profiles done")
@@ -203,7 +218,7 @@ if __name__ == '__main__':
         "X-Auth-Token": cfg['tinder_token'],
     }
     if cfg['backfill']:
-        retrieve_lostdata(cfg['backfill_folder'])
+        retrieve_lostdata(cfg['backfill_folder'], cfg['backfill_force'])
     else:
         create_directory()
         update_location()
