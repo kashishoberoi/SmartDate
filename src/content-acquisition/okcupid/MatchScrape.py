@@ -8,6 +8,8 @@ import os
 from datetime import date
 import urllib.request 
 import yaml
+from PIL import Image
+import imghdr
 
 def download_img(image_url,image_name,path):
     urllib.request.urlretrieve(image_url, path+'/'+image_name)
@@ -86,12 +88,16 @@ def retreive_data(count,driver,data_dict,soup):
         data_dict['background'] = items[1].text
     
     img = soup.find('img', class_='active')['src']
-    download_img(img,data_dict['name'].strip()+str(i)+'.jpeg',path2)
+    img_filename=data_dict['name'].strip()+str(i)+'.webp'
+    download_img(img,img_filename,path2)
+    im_loc=path2+"/"+img_filename
+    im = Image.open(im_loc).convert("RGB")
+    im.save(path2+"/"+data_dict['name'].strip()+str(i)+'.jpg',"jpeg")
+    os.remove(im_loc)
     return data_dict
 
 def dumponfile(count,driver,data_dict,url):
     driver.get(url)
-    #print("Exited profile",count)
     with open(path1+'/'+data_dict['name'].strip()+str(count)+'.json','w') as fp:
         json.dump(data_dict, fp)
 
@@ -118,7 +124,6 @@ if __name__ == '__main__':
     traverse_url = "https://www.okcupid.com"
 
     for i in range(0,len(matches)):
-        #empty json intialization
         data_dict = {'collector':cfg['name'],'city':cfg['city'],'pincode':cfg['pincode'],'country':cfg['country_name']}
         src,soup= retreive_source(i,driver,matches,traverse_url)
         data_dict = retreive_data(i,driver,data_dict,soup)
