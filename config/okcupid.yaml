@@ -8,4 +8,4 @@ output_folder: "../../../output/"
 pincode: 10001
 country_name: US
 backfill: False
-backfill_folder: '../../../output/Berkley/images/2019-06-04'
+backfill_folder: '../../../output/images/'
