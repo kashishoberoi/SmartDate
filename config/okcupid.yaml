@@ -1,5 +1,11 @@
-url: "https://www.okcupid.com/login"
-reloads : 100
-pause: 5
-username: "kashisokcupid@gmail.com"
-password: "1234"
+User_agent: okCupid
+city: Manhattan
+host: https://www.okcupid.com/login
+name: Anjana
+username: aj.goldfish@gmail.com
+password: rInwu9-giqvaw-viqnin
+output_folder: "../../../output/"
+pincode: 10001
+country_name: US
+backfill: False
+backfill_folder: '../../../output/Berkley/images/2019-06-04'
