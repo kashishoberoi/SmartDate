@@ -115,7 +115,7 @@ if __name__ == '__main__':
     login(username,password,driver)
 
     print("Matches please!")
-    url = "https://www.okcupid.com/match" 
+    url = url_match
     driver.get(url)
     html_soup = scrolling(10,5,driver)
 

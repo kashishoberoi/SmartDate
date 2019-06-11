@@ -1,9 +1,10 @@
 User_agent: okCupid
 city: Manhattan
 host: https://www.okcupid.com/login
-name: Anjana
-username: aj.goldfish@gmail.com
-password: rInwu9-giqvaw-viqnin
+url_match: https://www.okcupid.com/match
+name: Kashish
+username: kashishokcupid@gmail.com
+password: 1234
 output_folder: "../../../output/"
 pincode: 10001
 country_name: US
