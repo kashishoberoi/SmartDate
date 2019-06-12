@@ -1,3 +1,4 @@
 yaml
 selenium
 Pillow
+bs4
