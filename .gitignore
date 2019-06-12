@@ -1,3 +1,4 @@
 output/*
 .DS_Store
 src/content-acquisition/tinder/__pycache__
+config/
