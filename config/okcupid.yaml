@@ -3,6 +3,7 @@ city: Manhattan
 host: https://www.okcupid.com/login
 url_match: https://www.okcupid.com/match
 url_traverse: https://www.okcupid.com
+chromedriver_path: chromedriver
 name: Anjana
 username: aj.goldfish@gmail.com
 password: rInwu9-giqvaw-viqnin

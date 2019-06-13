@@ -96,17 +96,17 @@ def retreive_data(count,driver,data_dict,soup,likes,matches):
     # im.save(path2+"/"+data_dict['name'].strip()+str(count)+'.jpg',"jpeg")
     # os.remove(im_loc)
 
-    # pass_button = soup.find('button', class_='profile-buttons-actions-action profile-buttons-actions-pass')
-    # like_button = soup.find('button', class_ = "profile-buttons-actions-action profile-buttons-actions-liken")
-    # confirm_pass_button = soup.find('button',class_ ='flatbutton big pass-explainer-confirm')
-    # like_no_thanks= soup.find('button',class_='connectionModal-buttons-button connectionModal-buttons-button--cancel')
-    # if(random.random() and likes/len(matches) < 0.2):
-    #     like_button.click()
-    #     likes = likes+1
-    #     like_no_thanks.click()
-    # else:
-    #     pass_button.click()
-    #     confirm_pass_button.click()
+    pass_button = soup.find('button', class_='profile-buttons-actions-action profile-buttons-actions-pass')
+    like_button = soup.find('button', class_ = "profile-buttons-actions-action profile-buttons-actions-liken")
+    confirm_pass_button = soup.find('button',class_ ='flatbutton big pass-explainer-confirm')
+    like_no_thanks= soup.find('button',class_='connectionModal-buttons-button connectionModal-buttons-button--cancel')
+    if(random.random() and likes/len(matches) < 0.2):
+        like_button.click()
+        likes = likes+1
+        like_no_thanks.click()
+    else:
+        pass_button.click()
+        confirm_pass_button.click()
 
     return data_dict,likes
 
@@ -124,7 +124,7 @@ if __name__ == '__main__':
     url=cfg['host']
     username = cfg['username']
     password = cfg['password']
-    driver = webdriver.Chrome("chromedriver")
+    driver = webdriver.Chrome(cfg['chromedriver_path'])
     driver.get(url)
     login(username,password,driver)
 
