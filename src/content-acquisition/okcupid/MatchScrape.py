@@ -10,6 +10,7 @@ import urllib.request
 import yaml
 from PIL import Image
 import imghdr
+import random
 
 def download_img(image_url,image_name,path):
     urllib.request.urlretrieve(image_url, path+'/'+image_name)
@@ -55,7 +56,7 @@ def retreive_source(count,driver,matches,traverse_url):
     soup = BeautifulSoup(src, 'html.parser')
     return src,soup
 
-def retreive_data(count,driver,data_dict,soup):
+def retreive_data(count,driver,data_dict,soup,likes,matches):
     data_dict['name'] = soup.find('div', class_='userinfo2015-basics-username').text
     data_dict['age'] = soup.find('span',class_='userinfo2015-basics-asl-age').text
     data_dict['location'] = soup.find('span', class_ = 'userinfo2015-basics-asl-location').text
@@ -88,13 +89,26 @@ def retreive_data(count,driver,data_dict,soup):
         data_dict['background'] = items[1].text
     
     img = soup.find('img', class_='active')['src']
-    img_filename=data_dict['name'].strip()+str(i)+'.webp'
+    img_filename=data_dict['name'].strip()+str(count)+'.webp'
     download_img(img,img_filename,path2)
-    im_loc=path2+"/"+img_filename
-    im = Image.open(im_loc).convert("RGB")
-    im.save(path2+"/"+data_dict['name'].strip()+str(i)+'.jpg',"jpeg")
-    os.remove(im_loc)
-    return data_dict
+    # im_loc=path2+"/"+img_filename
+    # im = Image.open(im_loc).convert("RGB")
+    # im.save(path2+"/"+data_dict['name'].strip()+str(count)+'.jpg',"jpeg")
+    # os.remove(im_loc)
+
+    # pass_button = soup.find('button', class_='profile-buttons-actions-action profile-buttons-actions-pass')
+    # like_button = soup.find('button', class_ = "profile-buttons-actions-action profile-buttons-actions-liken")
+    # confirm_pass_button = soup.find('button',class_ ='flatbutton big pass-explainer-confirm')
+    # like_no_thanks= soup.find('button',class_='connectionModal-buttons-button connectionModal-buttons-button--cancel')
+    # if(random.random() and likes/len(matches) < 0.2):
+    #     like_button.click()
+    #     likes = likes+1
+    #     like_no_thanks.click()
+    # else:
+    #     pass_button.click()
+    #     confirm_pass_button.click()
+
+    return data_dict,likes
 
 def dumponfile(count,driver,data_dict,url):
     driver.get(url)
@@ -115,18 +129,18 @@ if __name__ == '__main__':
     login(username,password,driver)
 
     print("Matches please!")
-    url = url_match
+    url = cfg['url_match']
     driver.get(url)
-    html_soup = scrolling(10,5,driver)
+    html_soup = scrolling(cfg['reloads'],cfg['pause'],driver)
 
     print("Getting all matches...!")
     matches = html_soup.find_all('a',class_ = 'match-results-card')
-    traverse_url = "https://www.okcupid.com"
-
+    traverse_url = cfg['url_traverse']
+    likes=0
     for i in range(0,len(matches)):
         data_dict = {'collector':cfg['name'],'city':cfg['city'],'pincode':cfg['pincode'],'country':cfg['country_name']}
         src,soup= retreive_source(i,driver,matches,traverse_url)
-        data_dict = retreive_data(i,driver,data_dict,soup)
+        data_dict,likes = retreive_data(i,driver,data_dict,soup,likes,matches)
         dumponfile(i,driver,data_dict,url)
 
     driver.quit()
