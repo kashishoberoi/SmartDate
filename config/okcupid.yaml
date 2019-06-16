@@ -7,10 +7,10 @@ chromedriver_path: chromedriver
 name: Anjana
 username: aj.goldfish@gmail.com
 password: rInwu9-giqvaw-viqnin
-output_folder: "/output/"
+output_folder: "../../../output/"
 pincode: 10001
 country_name: US
 backfill: False
-backfill_folder: '/output/images/'
+backfill_folder: '../../../output/images/'
 reloads: 10
 pause: 5

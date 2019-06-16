@@ -91,22 +91,18 @@ def retreive_data(count,driver,data_dict,soup,likes,matches):
     img = soup.find('img', class_='active')['src']
     img_filename=data_dict['name'].strip()+str(count)+'.webp'
     download_img(img,img_filename,path2)
-    # im_loc=path2+"/"+img_filename
-    # im = Image.open(im_loc).convert("RGB")
-    # im.save(path2+"/"+data_dict['name'].strip()+str(count)+'.jpg',"jpeg")
-    # os.remove(im_loc)
+    im_loc=path2+"/"+img_filename
+    im = Image.open(im_loc).convert("RGB")
+    im.save(path2+"/"+data_dict['name'].strip()+str(count)+'.jpg',"jpeg")
+    os.remove(im_loc)
 
-    # pass_button = soup.find('button', class_='profile-buttons-actions-action profile-buttons-actions-pass')
-    # like_button = soup.find('button', class_ = "profile-buttons-actions-action profile-buttons-actions-liken")
-    # confirm_pass_button = soup.find('button',class_ ='flatbutton big pass-explainer-confirm')
-    # like_no_thanks= soup.find('button',class_='connectionModal-buttons-button connectionModal-buttons-button--cancel')
-    # if(random.random() and likes/len(matches) < 0.2):
-    #     like_button.click()
-    #     likes = likes+1
-    #     like_no_thanks.click()
-    # else:
-    #     pass_button.click()
-    #     confirm_pass_button.click()
+    pass_button = driver.find_element_by_css_selector('#pass-button')
+    like_button = driver.find_element_by_css_selector('#like-button')
+    if(random.random() and likes/len(matches) < 0.2):
+        like_button.click()
+        likes = likes+1
+    else:
+        pass_button.click()
 
     return data_dict,likes
 
