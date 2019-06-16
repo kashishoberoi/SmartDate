@@ -2,8 +2,8 @@
 
 ###Pre Requisites:
 1. Install required libraries
-2. Make a folder named output in the present directory
-3. Install ChromeDriver
+2. Make a folder named output in the root directory
+3. Install ChromeDriver ( Refer http://chromedriver.chromium.org/getting-started for help )
 
 ###Writing onto the config file
 ```
