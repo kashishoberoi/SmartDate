@@ -101,7 +101,7 @@ def retreive_data(count,driver,data_dict,soup,likes,matches):
         download_img(img,img_filename,path2)
         im_loc=path2+"/"+img_filename
         im = Image.open(im_loc).convert("RGB")
-        im.save(path2+"/"+data_dict['id']+'_'+str(count)+'_'+str(image_number)+'.jpg',"jpeg")
+        im.save(path2+"/"+data_dict['id']+'_'+str(image_number)+'.jpg',"jpeg")
         os.remove(im_loc)
         image_number=image_number+1
 
