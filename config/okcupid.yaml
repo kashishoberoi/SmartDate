@@ -5,8 +5,8 @@ url_match: https://www.okcupid.com/match
 url_traverse: https://www.okcupid.com
 chromedriver_path: chromedriver
 name: Anjana
-username: aj.goldfish@gmail.com
-password: rInwu9-giqvaw-viqnin
+username: smartdateokcupid@gmail.com
+password: qwerty123@
 output_folder: "../../../output/"
 pincode: 10001
 country_name: US

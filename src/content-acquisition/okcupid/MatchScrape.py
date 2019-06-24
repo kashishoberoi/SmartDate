@@ -54,7 +54,8 @@ def retreive_source(count,driver,matches,traverse_url):
     driver.get(next_profile_url)
     src = driver.page_source
     soup = BeautifulSoup(src, 'html.parser')
-    return src,soup
+    slice_index=slice(next_profile_url.index('profile/')+8,next_profile_url.index('?'))
+    return src,soup,next_profile_url[slice_index]
 
 def retreive_data(count,driver,data_dict,soup,likes,matches):
     data_dict['name'] = soup.find('div', class_='userinfo2015-basics-username').text
@@ -87,20 +88,28 @@ def retreive_data(count,driver,data_dict,soup,likes,matches):
         data_dict['background'] = items[1].text+','+items[2].text
     elif(len(items)==3):
         data_dict['background'] = items[1].text
-    
-    img = soup.find('img', class_='active')['src']
-    img_filename=data_dict['name'].strip()+str(count)+'.webp'
-    download_img(img,img_filename,path2)
-    im_loc=path2+"/"+img_filename
-    im = Image.open(im_loc).convert("RGB")
-    im.save(path2+"/"+data_dict['name'].strip()+str(count)+'.jpg',"jpeg")
-    os.remove(im_loc)
+
+    image_number=1
+    img_div= soup.find('div',class_="userinfo2015-thumb")
+    length = len(img_div.find_all('img'))
+    for img in img_div.find_all('img'):
+        if(image_number == length):
+            img=img['src']
+        else:
+            img=img['data-src']
+        img_filename=data_dict['id']+str(count)+ str(image_number)+'.webp'
+        download_img(img,img_filename,path2)
+        im_loc=path2+"/"+img_filename
+        im = Image.open(im_loc).convert("RGB")
+        im.save(path2+"/"+data_dict['id']+'_'+str(count)+'_'+str(image_number)+'.jpg',"jpeg")
+        os.remove(im_loc)
+        image_number=image_number+1
 
     pass_button = driver.find_element_by_css_selector('#pass-button')
     like_button = driver.find_element_by_css_selector('#like-button')
     if(random.random() and likes/len(matches) < 0.2):
         like_button.click()
-        likes = likes+1
+        likes = likes + 1
     else:
         pass_button.click()
 
@@ -108,7 +117,7 @@ def retreive_data(count,driver,data_dict,soup,likes,matches):
 
 def dumponfile(count,driver,data_dict,url):
     driver.get(url)
-    with open(path1+'/'+data_dict['name'].strip()+str(count)+'.json','w') as fp:
+    with open(path1+'/'+data_dict['id'].strip()+str(count)+'.json','w') as fp:
         json.dump(data_dict, fp)
 
 if __name__ == '__main__':
@@ -134,8 +143,8 @@ if __name__ == '__main__':
     traverse_url = cfg['url_traverse']
     likes=0
     for i in range(0,len(matches)):
-        data_dict = {'collector':cfg['name'],'city':cfg['city'],'pincode':cfg['pincode'],'country':cfg['country_name']}
-        src,soup= retreive_source(i,driver,matches,traverse_url)
+        src,soup,id= retreive_source(i,driver,matches,traverse_url)
+        data_dict = {'collector':cfg['name'],'city':cfg['city'],'pincode':cfg['pincode'],'country':cfg['country_name'],'id':id}
         data_dict,likes = retreive_data(i,driver,data_dict,soup,likes,matches)
         dumponfile(i,driver,data_dict,url)
 
