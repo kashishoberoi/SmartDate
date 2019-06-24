@@ -139,10 +139,10 @@ def retrieve_lostdata(path, flag):
         "last_swipe_count" : 0,
         "results" : []
         }
-
+    
     if flag is True:
             temp_dict['results'] = []
-
+        
     _ids = list(map(lambda d: d['_id'], temp_dict['results']))
     for num, folder in enumerate(os.listdir(path)):
         _id = folder.split('_')[0]
@@ -159,7 +159,9 @@ def retrieve_lostdata(path, flag):
             if rec.status_code == 200:
                 temp_dict['results'].append(rec.json()['results'])
         except KeyboardInterrupt:
-            export_results(temp_dict,file)
+
+            export_results(temp_dict,file) 
+
             break
 
     export_results(temp_dict,file)
