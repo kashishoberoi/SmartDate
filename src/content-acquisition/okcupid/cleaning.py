@@ -3,7 +3,6 @@ import pandas as pd
 import re
 import emoji,regex #to extract all emojis
 import yaml
-import spacy
 import json
 import preprocessor as p
 import unicodedata2 as UC
