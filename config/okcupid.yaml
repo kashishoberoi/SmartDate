@@ -14,3 +14,4 @@ backfill: False
 backfill_folder: '../../../output/images/'
 reloads: 10
 pause: 5
+cleaned_output: '../../../output/'

@@ -1,13 +1,35 @@
 import os, json
 import pandas as pd
 import re
-import emoji,regexpip install tweet-preprocessor==0.4.0
+import emoji,regex #to extract all emojis
 import preprocessor as p
 import yaml
 import spacy
 
+def sentence_segmentor(text):
+	sentences=[]
+	nlp = spacy.load("en_core_web_sm")
+	doc = nlp(text)
+	for sent in doc.sents:
+		sentences.append(sent.text)
+	return sentences
+
+
+def extract_emojis(text):
+	emoji_list = []
+	flags = regex.findall(u'[\U0001F1E6-\U0001F1FF]', text)
+	for c in text:
+		if c in emoji.UNICODE_EMOJI:
+			emoji_list.append(c)
+	return emoji_list + flags 
+
+def strip_emoji(text):
+	RE_EMOJI = re.compile('[\U00010000-\U0010ffff]', flags=re.UNICODE)
+	return RE_EMOJI.sub(r'', text)
+
+
 def clean():
-	with open('../../../config/tinder.yaml', 'r') as ymlfile:
+	with open('../../../config/okcupid.yaml', 'r') as ymlfile:
 		cfg = yaml.load(ymlfile)
 
 	#to read the raw data stored in "output"
