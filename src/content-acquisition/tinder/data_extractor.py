@@ -9,9 +9,10 @@ import yaml, pgeocode
 
 def create_directory():
     #create loacation,image,date folder
-    l = [cfg['city'],"images",date]
-    path = cfg['output_folder']
-    for i in range(3):
+    l = ['output','tinder',cfg['city'],"images",date]
+    # path = cfg['output_folder']
+    path = '../../..'
+    for i in range(5):
         path = path+'/'+l[i]
         if not os.path.exists(path):
             os.mkdir(path)
@@ -125,7 +126,7 @@ def import_results(path):
 
 def retrieve_lostdata(path, flag):
     print("## BACKFILL INITIATED ##")
-    
+
     file = cfg['output_folder']+path.split('/')[4]+'/'+path.split('/')[-1]+'.json'
     try:
         temp_dict = import_results(file)
@@ -141,7 +142,7 @@ def retrieve_lostdata(path, flag):
     
     if flag is True:
             temp_dict['results'] = []
-    
+        
     _ids = list(map(lambda d: d['_id'], temp_dict['results']))
     for num, folder in enumerate(os.listdir(path)):
         _id = folder.split('_')[0]
@@ -158,7 +159,9 @@ def retrieve_lostdata(path, flag):
             if rec.status_code == 200:
                 temp_dict['results'].append(rec.json()['results'])
         except KeyboardInterrupt:
+
             export_results(temp_dict,file) 
+
             break
 
     export_results(temp_dict,file)
