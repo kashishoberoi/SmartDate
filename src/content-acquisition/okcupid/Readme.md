@@ -1,5 +1,4 @@
 ### Contains scrapers for okcupid
-### Contains scrapers for okcupid
 
 ###Pre Requisites:
 1. Install required libraries
