@@ -140,7 +140,7 @@ if __name__ == '__main__':
     print("Matches please!")
     url = cfg['url_match']
     driver.get(url)
-    html_soup = scrolling(1,5,driver)#cfg['reloads'],cfg['pause'],driver)
+    html_soup = scrolling(cfg['reloads'],cfg['pause'],driver)
 
     print("Getting all matches...!")
     matches = html_soup.find_all('a',class_ = 'match-results-card')
