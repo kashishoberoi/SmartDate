@@ -15,9 +15,9 @@ import random
 def download_img(image_url,image_name,path):
     urllib.request.urlretrieve(image_url, path+'/'+image_name)
 
-def create_dir(output_folder,backfill):
-    today = date.today().strftime("%d-%m-%Y")
-    path = output_folder+today
+def create_dir(output_folder,backfill,city):
+    today = date.today().strftime("%Y-%m-%d")
+    path = output_folder+city+'/'+today
     if not os.path.exists(path):
         os.makedirs(path)
     if not os.path.exists(backfill+today):
@@ -57,7 +57,10 @@ def retreive_source(count,driver,matches,traverse_url):
     slice_index=slice(next_profile_url.index('profile/')+8,next_profile_url.index('?'))
     return src,soup,next_profile_url[slice_index]
 
-def retreive_data(count,driver,data_dict,soup,likes,matches):
+def retreive_data(count,driver,data_dict,soup,likes,matches,id):
+    if not os.path.exists(path2+'/'+str(id)):
+        os.makedirs(path2+'/'+str(id))
+        
     data_dict['name'] = soup.find('div', class_='userinfo2015-basics-username').text
     data_dict['age'] = soup.find('span',class_='userinfo2015-basics-asl-age').text
     data_dict['location'] = soup.find('span', class_ = 'userinfo2015-basics-asl-location').text
@@ -92,39 +95,40 @@ def retreive_data(count,driver,data_dict,soup,likes,matches):
     image_number=1
     img_div= soup.find('div',class_="userinfo2015-thumb")
     length = len(img_div.find_all('img'))
+
     for img in img_div.find_all('img'):
         if(image_number == length):
             img=img['src']
         else:
             img=img['data-src']
-        img_filename=data_dict['id']+str(count)+ str(image_number)+'.webp'
-        download_img(img,img_filename,path2)
-        im_loc=path2+"/"+img_filename
+        img_filename=str(image_number)+'.webp'
+        download_img(img,img_filename,path2+'/'+str(id))
+        im_loc=path2+"/"+str(id)+"/"+img_filename
         im = Image.open(im_loc).convert("RGB")
-        im.save(path2+"/"+data_dict['id']+'_'+str(image_number)+'.jpg',"jpeg")
+        im.save(path2+"/"+str(id)+"/"+str(image_number)+'.jpg',"jpeg")
         os.remove(im_loc)
         image_number=image_number+1
 
     pass_button = driver.find_element_by_css_selector('#pass-button')
     like_button = driver.find_element_by_css_selector('#like-button')
     if(random.random() and likes/len(matches) < 0.2):
-        like_button.click()
+        driver.execute_script("arguments[0].click();", like_button)
         likes = likes + 1
     else:
-        pass_button.click()
+        driver.execute_script("arguments[0].click();", pass_button)
 
     return data_dict,likes
 
-def dumponfile(count,driver,data_dict,url):
+def dumponfile(id,driver,data_dict,url):
     driver.get(url)
-    with open(path1+'/'+data_dict['id'].strip()+str(count)+'.json','w') as fp:
+    with open(path1+'/'+str(id)+'.json','w') as fp:
         json.dump(data_dict, fp)
 
 if __name__ == '__main__':
     with open('../../../config/okcupid.yaml', 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
 
-    path1,path2 = create_dir(cfg['output_folder'],cfg['backfill_folder'])
+    path1,path2 = create_dir(cfg['output_folder'],cfg['backfill_folder'], cfg['city'])
 
     url=cfg['host']
     username = cfg['username']
@@ -136,7 +140,7 @@ if __name__ == '__main__':
     print("Matches please!")
     url = cfg['url_match']
     driver.get(url)
-    html_soup = scrolling(cfg['reloads'],cfg['pause'],driver)
+    html_soup = scrolling(1,5,driver)#cfg['reloads'],cfg['pause'],driver)
 
     print("Getting all matches...!")
     matches = html_soup.find_all('a',class_ = 'match-results-card')
@@ -144,9 +148,9 @@ if __name__ == '__main__':
     likes=0
     for i in range(0,len(matches)):
         src,soup,id= retreive_source(i,driver,matches,traverse_url)
-        data_dict = {'collector':cfg['name'],'city':cfg['city'],'pincode':cfg['pincode'],'country':cfg['country_name'],'id':id}
-        data_dict,likes = retreive_data(i,driver,data_dict,soup,likes,matches)
-        dumponfile(i,driver,data_dict,url)
+        data_dict = {'collector':cfg['name'],'city':cfg['city'],'pincode':cfg['pincode'],'country':cfg['country_name']}
+        data_dict,likes = retreive_data(i,driver,data_dict,soup,likes,matches,id)
+        dumponfile(id,driver,data_dict,url)
 
     driver.quit()
     print(len(matches),"New profiles Entered in output file \nExiting Code")
