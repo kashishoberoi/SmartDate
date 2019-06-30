@@ -48,11 +48,11 @@ if __name__ == '__main__':
         if(place != '.DS_Store'):
             path_to_json = path_to_locations+place
             json_files = [pos_json for pos_json in os.listdir(path_to_json) if pos_json.endswith('.json')]
+
             for curr_file in json_files:
-                print("file being used currently is ",curr_file)
                 with open(path_to_json+'/'+curr_file) as json_data:
                     data_dict = json.load(json_data, strict=False)
                 data_dict = clean(data_dict)
                 dumpfile(data_dict,place)
-
+    print("Cleaning DONE")
 					
