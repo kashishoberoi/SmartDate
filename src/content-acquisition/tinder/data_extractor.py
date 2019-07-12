@@ -210,7 +210,7 @@ if __name__ == '__main__':
     with open('../../../config/tinder.yaml', 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
 
-    main_path = cfg['output_folder']+cfg['city']
+    main_path = cfg['output_folder']+'/tinder/'+cfg['city']
     op_file_path = main_path+'/'+date
     image_path = main_path+"/images/"+date
     headers = {
